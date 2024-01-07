@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "C17/7NhZ6GNlu1rs3aq+diGXxO8PyILxkKsiLdTHT8g=",
+  "Source": "prod-sync-api",
+  "BasePath": "_content/prod-sync-api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

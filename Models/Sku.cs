@@ -1,7 +1,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Sku
+public class SKU
 {
     public Guid Id { get; set; }
     public Guid ProductId { get; set; }

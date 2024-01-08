@@ -6,8 +6,7 @@ public class Product
     public int QuantityInStock { get; set; }
     public Guid ProductModelId { get; set; }
     public ProductModel ProductModel { get; set; } = null!;
-    public Guid SkuId { get; set; }
-    public Sku Sku { get; set; } = null!;
+    public SKU SKU { get; set; } = null!;
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
     public DateTime CreatedDate { get; set; }

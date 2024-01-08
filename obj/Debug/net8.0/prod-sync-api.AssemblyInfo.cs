@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18e11ffd39af6cfe839483d8352bae6f998e6098")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

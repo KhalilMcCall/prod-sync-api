@@ -1,11 +1,15 @@
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 namespace prod_sync_api;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
         // Add services to the container.
 
@@ -26,7 +30,6 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 

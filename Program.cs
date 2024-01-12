@@ -19,10 +19,11 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddTransient<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IProductModelService, ProductModelService>();
         builder.Services.AddDbContext<ProdSyncContext>(options =>
         options.UseSqlServer(builder.Configuration.GetSection("ProdSync:ConnectionString").Value),
-        ServiceLifetime.Transient);
+        ServiceLifetime.Scoped);
 
         var app = builder.Build();
 

@@ -9,7 +9,7 @@ public class ProductService : IProductService
     }
     public Product CreateProduct(Product product)
     {
-        throw new NotImplementedException();
+        return product;
     }
 
     public Product DeleteProduct(Product product)

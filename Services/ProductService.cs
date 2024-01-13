@@ -7,23 +7,33 @@ public class ProductService : IProductService
     {
         _context = context;
     }
-    public Product CreateProduct(Product product)
+    public void CreateProduct(Product product)
     {
-        return product;
+        var d = DateTime.UtcNow;
+        product.Id = Guid.NewGuid();
+        product.CreatedDate = d;
+        product.LastModifiedDate = d;
+
+        _context.Products.Add(product);
+        _context.SaveChanges();
     }
 
-    public Product DeleteProduct(Product product)
+    public void DeleteProduct(Product product)
     {
-        throw new NotImplementedException();
+        _context.Products.Remove(product);
+        _context.SaveChanges();
     }
 
     public List<Product> GetProducts()
     {
-        throw new NotImplementedException();
+        return _context.Products.ToList();
     }
 
-    public Product UpdateProduct(Product product)
+    public void UpdateProduct(Product product)
     {
-        throw new NotImplementedException();
+        var d = DateTime.UtcNow;
+        product.LastModifiedDate = d;
+        _context.Products.Update(product);
+        _context.SaveChanges();
     }
 }

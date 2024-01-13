@@ -1,9 +1,9 @@
 public interface IProductService
 {
-    Product CreateProduct(Product product);
+    void CreateProduct(Product product);
     List<Product> GetProducts();
 
-    Product UpdateProduct(Product product);
+    void UpdateProduct(Product product);
 
-    Product DeleteProduct(Product product);
+    void DeleteProduct(Product product);
 }

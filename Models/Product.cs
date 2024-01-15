@@ -15,6 +15,7 @@ public class Product
     public decimal Price { get; set; }
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
+    public string CategoryCode { get; set; } = null!;
     public DateTime CreatedDate { get; set; }
     public DateTime LastModifiedDate { get; set; }
 }

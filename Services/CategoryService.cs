@@ -15,15 +15,20 @@ public class CategoryService : ICategoryService
     public void CreateCategory(Category category)
     {
 
-        //Generate Guids and Set Dates
-        var d = DateTime.UtcNow;
+        var c = _context.Categories.SingleOrDefault(x => x.Code == category.Code);
 
-        category.Id = Guid.NewGuid();
-        category.CreatedDate = d;
-        category.LastModifiedDate = d;
+        if (c == null)
+        {
+            //Generate Guids and Set Dates
+            var d = DateTime.UtcNow;
 
-        //Add Guids To Context
-        _context.Categories.Add(category);
-        _context.SaveChanges();
+            category.Id = Guid.NewGuid();
+            category.CreatedDate = d;
+            category.LastModifiedDate = d;
+
+            //Add Guids To Context
+            _context.Categories.Add(category);
+            _context.SaveChanges();
+        }
     }
 }

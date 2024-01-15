@@ -20,6 +20,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddDbContext<ProdSyncContext>(options =>
         options.UseSqlServer(builder.Configuration.GetSection("ProdSync:ConnectionString").Value),
         ServiceLifetime.Scoped);

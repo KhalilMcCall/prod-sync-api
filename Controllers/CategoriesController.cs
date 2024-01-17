@@ -20,10 +20,24 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Post(Category category)
+    public IActionResult Post(CreateCategoryRequest request)
     {
-        Console.WriteLine($"Inside Post Category: {category}");
-        _categoryService.CreateCategory(category);
-        return Ok(category);
+        var c = new Category()
+        {
+            Name = request.Name,
+            Code = request.Code
+        };
+
+        _categoryService.CreateCategory(c);
+
+        var response = new CreateCategoryResponse(
+            c.Name,
+            c.Code,
+            c.CreatedDate,
+            c.LastModifiedDate
+        );
+
+
+        return CreatedAtAction(nameof(Post), response);
     }
 }

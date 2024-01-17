@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "pi8rHV6CeX7vB2DPAGNdBBOMMZ7D3kZMXxbvwL4IKzxCs0CwUCYU+vpEGwIkwc5FtAE1mbkFNLBwtljlAz7Oiw==",
+  "dgSpecHash": "731P1V9mMsqoI7sGbMeivFz3U8io+c+mlSwhWsWjpoWoHvj8lLpP2DCWTajRThBKQAYbLbDasKiElINIQQbXrA==",
   "success": true,
   "projectFilePath": "/Users/khalilmccall/Downloads/code/prod-sync-api/prod-sync-api.csproj",
   "expectedPackageFiles": [
     "/Users/khalilmccall/.nuget/packages/azure.core/1.25.0/azure.core.1.25.0.nupkg.sha512",
     "/Users/khalilmccall/.nuget/packages/azure.identity/1.7.0/azure.identity.1.7.0.nupkg.sha512",
+    "/Users/khalilmccall/.nuget/packages/erroror/1.9.0/erroror.1.9.0.nupkg.sha512",
     "/Users/khalilmccall/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/khalilmccall/.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "/Users/khalilmccall/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.3/microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",

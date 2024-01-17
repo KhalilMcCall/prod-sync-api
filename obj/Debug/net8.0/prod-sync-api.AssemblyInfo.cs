@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24188ce103bc8a3f9bfb5c30d1f2afea17b9c663")]
 [assembly: System.Reflection.AssemblyProductAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("prod-sync-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

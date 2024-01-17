@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 [ApiController]
 [Route("[controller]")]
@@ -26,7 +27,13 @@ public class ProductsController : ControllerBase
             Price = request.Price
         };
 
-        _productService.CreateProduct(p);
+        var pResult = _productService.CreateProduct(p);
+
+        if (pResult.IsError && pResult.FirstError == Errors.Category.NotFound)
+        {
+            return NotFound(pResult.FirstError);
+        }
+
 
         //Generate Response
         var response = new CreateProductResponse(
@@ -40,9 +47,8 @@ public class ProductsController : ControllerBase
             p.Price,
             p.CreatedDate,
             p.LastModifiedDate
-
         );
-        return Ok(response);
+        return CreatedAtAction(nameof(Post), response);
     }
 
     [HttpGet]
@@ -52,19 +58,82 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-    [HttpPut]
-    public IActionResult Put(Guid id, Product product)
+    [HttpGet]
+    [Route("GetById")]
+    public IActionResult Get(Guid id)
     {
-        _productService.UpdateProduct(id, product);
-        return Ok(product);
+        var pr = _productService.GetProduct(id);
+        if (pr.IsError && pr.FirstError == Errors.Product.NotFound)
+        {
+            return NotFound(pr.FirstError);
+        }
+
+        var p = pr.Value;
+
+        var response = new GetProductByIdResponse(
+            p.Id,
+            p.Name,
+            p.Description,
+            p.QuantityInStock,
+            p.ProductModel,
+            p.SKU,
+            p.CategoryCode,
+            p.Price,
+            p.CreatedDate,
+            p.LastModifiedDate
+        );
+        return Ok(response);
+    }
+
+    [HttpPut]
+    public IActionResult Put(Guid id, UpdateProductRequest request)
+    {
+        //Create new Product
+        var p = new Product
+        {
+            Name = request.Name,
+            Description = request.Description,
+            QuantityInStock = request.QuantityInStock,
+            ProductModel = request.ProductModel,
+            SKU = request.SKU,
+            CategoryCode = request.CategoryCode,
+            Price = request.Price
+        };
+
+        var pr = _productService.UpdateProduct(id, p);
+
+        if (pr.IsError)
+        {
+            return NotFound(pr.FirstError);
+        }
+        var pResult = pr.Value;
+
+        //Generate Response
+        var response = new UpdateProductResponse(
+            pResult.Id,
+            pResult.Name,
+            pResult.Description,
+            pResult.QuantityInStock,
+            pResult.ProductModel,
+            pResult.SKU,
+            pResult.CategoryCode,
+            pResult.Price,
+            pResult.CreatedDate,
+            pResult.LastModifiedDate
+        );
+        return Ok(response);
     }
 
     [HttpDelete]
     public IActionResult Delete(Guid id)
     {
-        _productService.DeleteProduct(id);
+        var pr = _productService.DeleteProduct(id);
 
-        return Ok(id);
+        if (pr.IsError && pr.FirstError == Errors.Product.NotFound)
+        {
+            return NotFound(pr.FirstError);
+        }
+        return NoContent();
     }
 
 }

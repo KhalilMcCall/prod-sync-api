@@ -1,9 +1,12 @@
+using ErrorOr;
+
 public interface IProductService
 {
-    void CreateProduct(Product product);
+    ErrorOr<Product> CreateProduct(Product product);
     List<Product> GetProducts();
+    ErrorOr<Product> GetProduct(Guid id);
 
-    void UpdateProduct(Guid Id, Product product);
+    ErrorOr<Product> UpdateProduct(Guid Id, Product product);
 
-    void DeleteProduct(Guid Id);
+    ErrorOr<Product> DeleteProduct(Guid Id);
 }

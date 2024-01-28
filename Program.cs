@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,20 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+                }
+            );
+        });
+        builder.Services.AddMemoryCache();
+        builder.Services.AddScoped<IUserRolesService, UserRolesService>();
+        builder.Services.AddScoped<IIdentityService, IdentityService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddDbContext<ProdSyncContext>(options =>
@@ -33,6 +48,11 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.Use(async (HttpContext context, RequestDelegate next) =>
+        {
+            await next(context);
+        });
+        app.UseCors();
         app.UseExceptionHandler("/error");
         app.UseHttpsRedirection();
         app.UseAuthorization();

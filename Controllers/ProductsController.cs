@@ -29,11 +29,10 @@ public class ProductsController : ControllerBase
 
         var pResult = _productService.CreateProduct(p);
 
-        if (pResult.IsError && pResult.FirstError == Errors.Category.NotFound)
+        if (pResult.IsError)
         {
             return NotFound(pResult.FirstError);
         }
-
 
         //Generate Response
         var response = new CreateProductResponse(
@@ -129,7 +128,7 @@ public class ProductsController : ControllerBase
     {
         var pr = _productService.DeleteProduct(id);
 
-        if (pr.IsError && pr.FirstError == Errors.Product.NotFound)
+        if (pr.IsError)
         {
             return NotFound(pr.FirstError);
         }

@@ -28,15 +28,18 @@ public class CategoriesController : ControllerBase
             Code = request.Code
         };
 
-        _categoryService.CreateCategory(c);
-
+        var cr = _categoryService.CreateCategory(c);
+        if (cr.IsError)
+        {
+            return BadRequest(cr.Errors);
+        }
+        var resObj = cr.Value;
         var response = new CreateCategoryResponse(
-            c.Name,
-            c.Code,
-            c.CreatedDate,
-            c.LastModifiedDate
+            resObj.Name,
+            resObj.Code,
+            resObj.CreatedDate,
+            resObj.LastModifiedDate
         );
-
 
         return CreatedAtAction(nameof(Post), response);
     }

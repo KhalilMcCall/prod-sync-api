@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Eventing.Reader;
 
 public class Product
 {
@@ -16,6 +17,7 @@ public class Product
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
     public string CategoryCode { get; set; } = null!;
+    public bool Active { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime LastModifiedDate { get; set; }
 }

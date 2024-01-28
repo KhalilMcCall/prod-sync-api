@@ -6,7 +6,6 @@ public class CategoryService : ICategoryService
 
     public CategoryService(ProdSyncContext context)
     {
-        Console.WriteLine("Categories Service Created!");
         _context = context;
     }
 
@@ -32,8 +31,8 @@ public class CategoryService : ICategoryService
         category.LastModifiedDate = d;
 
         //Add Guids To Context
-        _context.Categories.Add(category);
-        _context.SaveChanges();
+        // _context.Categories.Add(category);
+        // _context.SaveChanges();
         return category;
     }
 }

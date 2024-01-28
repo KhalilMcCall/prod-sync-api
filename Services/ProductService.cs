@@ -1,13 +1,19 @@
 
 using System.Reflection.Metadata.Ecma335;
 using ErrorOr;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 
 public class ProductService : IProductService
 {
+    private readonly IMemoryCache _memoryCache;
+    private const string productCacheKey = "productCacheKey";
     private readonly ProdSyncContext _context;
 
-    public ProductService(ProdSyncContext context)
+    public ProductService(IMemoryCache memoryCache, ProdSyncContext context)
     {
+        _memoryCache = memoryCache;
         _context = context;
     }
     public ErrorOr<Product> CreateProduct(Product product)
@@ -34,15 +40,35 @@ public class ProductService : IProductService
         product.CreatedDate = d;
         product.LastModifiedDate = d;
 
-        //_context.Products.Add(product);
-        // _context.SaveChanges();
+        _context.Products.Add(product);
+        _context.SaveChanges();
 
         return product;
     }
 
     public List<Product> GetProducts()
     {
-        return _context.Products.ToList();
+
+        var products = _context.Products.ToList();
+        Console.WriteLine("Retrieved the first list!");
+
+        var products2 = _context.Products.Where(x => x.SKU > 10);
+        // if (_memoryCache.TryGetValue(productCacheKey, out List<Product> products))
+        // {
+        //     Console.WriteLine("Products found in Cache!");
+
+        // }
+        // else
+        // {
+        //     Console.WriteLine("Requesting from Dbcontext");
+
+        //     products = _context.Products.ToList();
+        //     _memoryCache.Set(productCacheKey, products, new MemoryCacheEntryOptions()
+        //                                                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(20))
+        //                                                 .SetPriority(CacheItemPriority.Normal));
+        // }
+
+        return products;
     }
 
     public ErrorOr<Product> GetProduct(Guid id)
@@ -110,8 +136,8 @@ public class ProductService : IProductService
             return Errors.Product.NotFound;
         }
 
-        // _context.Products.Remove(p);
-        //_context.SaveChanges();
+        _context.Products.Remove(p);
+        _context.SaveChanges();
         return p;
     }
 

@@ -9,16 +9,61 @@ public class UsersController : ControllerBase
     {
         _identityService = identityService;
     }
-    public IActionResult Post(LoginRequest request)
+
+    [HttpPost]
+    [Route("Login")]
+    public IActionResult Login(LoginRequest request)
     {
         var login = _identityService.Login(request);
         if (login.IsError)
         {
-
             return BadRequest("Wrong Username or Password");
         }
-        Response.Headers["Authorization"] = "973454753483";
+        var userValue = login.Value;
+        Response.Headers["Authorization"] = userValue;
         return Ok("LogIn Successful!");
+    }
+
+    [HttpPost]
+    [Route("CreateUser")]
+    public IActionResult CreateUser(CreateUserRequest request)
+    {
+        var u = _identityService.CreateUser(request);
+
+        if (u.IsError)
+        {
+            return BadRequest(u.Errors);
+        }
+
+        var userValue = u.Value;
+
+        var userResult = new CreateUserResponse(
+                userValue.Id,
+                userValue.Username,
+                userValue.FirstName,
+                userValue.LastName,
+                userValue.Email,
+                userValue.UserRoleCode,
+                userValue.LastModifiedDate,
+                userValue.CreatedDate
+        );
+
+        return CreatedAtAction("CreateUser", userResult);
+    }
+
+
+    [HttpGet]
+    [Route("AuthorizedOnly")]
+    public IActionResult AuthorizedOnly()
+    {
+        if (!Request.Headers.ContainsKey("Authorized"))
+        {
+            return BadRequest("Not Logged In.");
+        }
+
+        return Ok();
+
+
     }
 
 }

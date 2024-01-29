@@ -4,5 +4,5 @@ public record CreateUserRequest(
     string LastName,
     string Email,
     string Password,
-    int UserRoleCode
+    string UserRoleCode
 );

@@ -10,6 +10,7 @@ public class UserRolesService : IUserRolesService
     }
     public ErrorOr<UserRole> CreateUserRole(CreateUserRoleRequest request)
     {
+
         var role = _context.UserRoles.FirstOrDefault(x => x.Code == request.Code);
         if (role != null)
         {

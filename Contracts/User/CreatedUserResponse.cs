@@ -4,7 +4,7 @@ public record CreateUserResponse(
     string FirstName,
     string LastName,
     string Email,
-    int UserRoleCode,
+    string UserRoleCode,
     DateTime LastModifiedDate,
-    DateTime CreattedDate
+    DateTime CreatedDate
 );

@@ -12,7 +12,7 @@ public class User
     public byte[] Salt { get; set; } = null!;
     public Guid UserRoleId { get; set; }
     public UserRole UserRole { get; set; } = null!;
-    public int UserRoleCode { get; set; }
+    public string UserRoleCode { get; set; } = null!;
     public bool Active { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime LastModifiedDate { get; set; }

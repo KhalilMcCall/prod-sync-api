@@ -15,6 +15,7 @@ public class UserRolesController : ControllerBase
     [HttpPost]
     public IActionResult Post(CreateUserRoleRequest request)
     {
+
         var userRole = _userRolesService.CreateUserRole(request);
         if (userRole.IsError)
         {
@@ -32,7 +33,7 @@ public class UserRolesController : ControllerBase
             result.CreatedDate
         );
 
-        return CreatedAtAction("Create User Role", response);
+        return CreatedAtAction("Post", response);
     }
 }
 

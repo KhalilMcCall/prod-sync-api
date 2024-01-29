@@ -1,8 +1,10 @@
 
 
+using System.CodeDom.Compiler;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using ErrorOr;
 using Microsoft.Extensions.Configuration;
 
@@ -44,6 +46,7 @@ public class IdentityService : IIdentityService
             Salt = salt,
             PasswordHash = passwordHash,
             Active = true,
+            UserRoleId = userRole.Id,
             UserRoleCode = request.UserRoleCode,
             LastModifiedDate = d,
             CreatedDate = d,
@@ -56,10 +59,10 @@ public class IdentityService : IIdentityService
     }
 
 
-    public ErrorOr<User> Login(LoginRequest request)
+    public ErrorOr<string> Login(LoginRequest request)
     {
         var u = _context.Users.FirstOrDefault(x => x.Username == request.username);
-        if (u != null)
+        if (u == null)
         {
             return Errors.User.Validation;
         }
@@ -73,7 +76,28 @@ public class IdentityService : IIdentityService
             return Errors.User.Validation;
         }
 
-        return u;
+        return GenerateJWT(u);
+    }
+
+    private string GenerateJWT(User user)
+    {
+        var header = new { alg = "HS256", typ = "JWT" };
+        var now = (int)DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds();
+        var payload = new { id = $"{user.Id}", name = $"{user.FirstName} {user.LastName}", iat = now };
+
+        var headerStr = JsonSerializer.Serialize(header);
+        var payloadStr = JsonSerializer.Serialize(payload);
+
+        var headerBase64Str = Convert.ToBase64String(Encoding.UTF8.GetBytes(headerStr)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var payloadBase64Str = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadStr)).TrimEnd('=').Replace('+', '-').Replace('/', '_'); ;
+
+        var hashInput = $"{headerBase64Str}.{payloadBase64Str}";
+        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
+        var signatureStr = Convert.ToBase64String(signature).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var jwt = $"{hashInput}.{signatureStr}";
+
+        return jwt;
     }
 
     private byte[] GenerateSalt()
@@ -101,8 +125,5 @@ public class IdentityService : IIdentityService
         return true;
     }
 
-    private string GenerateToken(string password)
-    {
-        return "";
-    }
+
 }

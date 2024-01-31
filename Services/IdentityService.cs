@@ -1,13 +1,25 @@
 
 
 using System.CodeDom.Compiler;
+using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using ErrorOr;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
+
+public class AuthPayload
+{
+    public Guid id { get; set; }
+    public string name { get; set; }
+    public int iat { get; set; }
+
+}
 public class IdentityService : IIdentityService
 {
     private readonly ProdSyncContext _context;
@@ -95,11 +107,54 @@ public class IdentityService : IIdentityService
         var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
         var signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
         var signatureStr = Convert.ToBase64String(signature).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
         var jwt = $"{hashInput}.{signatureStr}";
 
         return jwt;
     }
+    public bool Authenticate(string token)
+    {
+        var tokenStr = token.Substring(7);
+        var tokenSplit = tokenStr.Split('.');
+        var header = tokenSplit[0];
+        var payload = tokenSplit[1];
+        var input = $"{header}.{payload}";
 
+        Console.WriteLine($"Input: {input}");
+        var signature = tokenSplit[2];
+
+        //Hashing the header and payload 
+        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hashedSignature = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+        //Convert the Hased signature into a Base64 string and format properly
+        var inputSignature = Convert.ToBase64String(hashedSignature).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        if (inputSignature != signature)
+        {
+            return false;
+        }
+
+
+        //Decode Base64 string
+        var decodedPayload = Convert.FromBase64String(payload);
+        var decodedPayloadString = Encoding.UTF8.GetString(decodedPayload);
+
+        //Deserialize
+        var payloadObj = JsonSerializer.Deserialize<AuthPayload>(decodedPayloadString);
+        if (payloadObj?.iat == null)
+        {
+            return false;
+        }
+
+
+        if (DateTimeOffset.UtcNow > DateTimeOffset.FromUnixTimeSeconds(payloadObj.iat))
+        {
+            return false;
+        }
+
+        return true;
+    }
     private byte[] GenerateSalt()
     {
         return RandomNumberGenerator.GetBytes(SaltSize);
@@ -114,11 +169,7 @@ public class IdentityService : IIdentityService
 
     private bool CompareHash(byte[] hash1, byte[] hash2)
     {
-        if (hash1 == null || hash2 == null)
-        {
-            return false;
-        }
-        if (!hash1.SequenceEqual(hash2))
+        if (hash1 == null || hash2 == null || !hash1.SequenceEqual(hash2))
         {
             return false;
         }

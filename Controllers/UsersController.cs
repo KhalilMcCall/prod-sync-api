@@ -56,12 +56,12 @@ public class UsersController : ControllerBase
     [Route("AuthorizedOnly")]
     public IActionResult AuthorizedOnly()
     {
-        if (!Request.Headers.ContainsKey("Authorized"))
+        if (!Request.Headers.ContainsKey("Authorization") || !_identityService.Authenticate(Request.Headers["Authorization"]))
         {
             return BadRequest("Not Logged In.");
         }
 
-        return Ok();
+        return Ok("Logged and authenticated");
 
 
     }

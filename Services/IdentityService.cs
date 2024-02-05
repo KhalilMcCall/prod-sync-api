@@ -3,6 +3,7 @@
 using System.CodeDom.Compiler;
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -11,21 +12,29 @@ using ErrorOr;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 
 
 public class AuthPayload
 {
     public Guid id { get; set; }
-    public string name { get; set; }
+    public string name { get; set; } = null!;
     public int iat { get; set; }
+    public int exp { get; set; }
+    public string isAdmin { get; set; }
+    public string iss { get; set; } = null!;
+    public string aud { get; set; } = null!;
+
 
 }
 public class IdentityService : IIdentityService
 {
     private readonly ProdSyncContext _context;
 
-    private readonly string secretKey = "kobeBean";
-    private readonly int SaltSize = 16;
+    private readonly string Issuer = "http://localhost:5263";
+    private readonly string Audience = "http://localhost:5263";
+    private readonly string secretKeyP = "kobeBean";
+    private readonly string secretKeyJWT = "kobekobekobekobekobekobekobekobe";
     public IdentityService(ProdSyncContext context)
     {
         _context = context;
@@ -93,77 +102,43 @@ public class IdentityService : IIdentityService
 
     private string GenerateJWT(User user)
     {
-        var header = new { alg = "HS256", typ = "JWT" };
-        var now = (int)DateTimeOffset.UtcNow.AddHours(2).ToUnixTimeSeconds();
-        var payload = new { id = $"{user.Id}", name = $"{user.FirstName} {user.LastName}", iat = now };
+        //Security Token Descriptor
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            //Subject Property sets claims
+            Subject = new ClaimsIdentity(new[] {
+                new Claim("Id",Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,user.Username),
+                new Claim("isAdmin", user.UserRoleCode == "100" ? "true" : "false")
+            }),
 
-        var headerStr = JsonSerializer.Serialize(header);
-        var payloadStr = JsonSerializer.Serialize(payload);
+            Expires = DateTime.UtcNow.AddHours(2),
+            Issuer = Issuer,
+            Audience = Audience,
+            SigningCredentials = new SigningCredentials
+            (new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKeyJWT)),
+            SecurityAlgorithms.HmacSha256Signature)
+        };
 
-        var headerBase64Str = Convert.ToBase64String(Encoding.UTF8.GetBytes(headerStr)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
-        var payloadBase64Str = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadStr)).TrimEnd('=').Replace('+', '-').Replace('/', '_'); ;
+        //Token Handler
+        var tokenHandler = new JwtSecurityTokenHandler();
 
-        var hashInput = $"{headerBase64Str}.{payloadBase64Str}";
-        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
-        var signature = hmac.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
-        var signatureStr = Convert.ToBase64String(signature).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        //Token Handler Creates Token 
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var jwtToken = tokenHandler.WriteToken(token);
+        return jwtToken;
 
-        var jwt = $"{hashInput}.{signatureStr}";
-
-        return jwt;
     }
-    public bool Authenticate(string token)
-    {
-        var tokenStr = token.Substring(7);
-        var tokenSplit = tokenStr.Split('.');
-        var header = tokenSplit[0];
-        var payload = tokenSplit[1];
-        var input = $"{header}.{payload}";
 
-        Console.WriteLine($"Input: {input}");
-        var signature = tokenSplit[2];
-
-        //Hashing the header and payload 
-        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
-        var hashedSignature = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-        //Convert the Hased signature into a Base64 string and format properly
-        var inputSignature = Convert.ToBase64String(hashedSignature).TrimEnd('=').Replace('+', '-').Replace('/', '_');
-
-        if (inputSignature != signature)
-        {
-            return false;
-        }
-
-
-        //Decode Base64 string
-        var decodedPayload = Convert.FromBase64String(payload);
-        var decodedPayloadString = Encoding.UTF8.GetString(decodedPayload);
-
-        //Deserialize
-        var payloadObj = JsonSerializer.Deserialize<AuthPayload>(decodedPayloadString);
-        if (payloadObj?.iat == null)
-        {
-            return false;
-        }
-
-
-        if (DateTimeOffset.UtcNow > DateTimeOffset.FromUnixTimeSeconds(payloadObj.iat))
-        {
-            return false;
-        }
-
-        return true;
-    }
     private byte[] GenerateSalt()
     {
-        return RandomNumberGenerator.GetBytes(SaltSize);
+        return RandomNumberGenerator.GetBytes(secretKeyP.Length * 2);
     }
     private byte[] GenerateHash(string password, byte[] salt)
     {
         var saltedString = password + Convert.ToHexString(salt);
         var saltedStringbytes = Encoding.UTF8.GetBytes(saltedString);
-        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKeyP));
         return hmac.ComputeHash(saltedStringbytes);
     }
 

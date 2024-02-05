@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -26,6 +27,7 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [Route("CreateUser")]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult CreateUser(CreateUserRequest request)
     {
         var u = _identityService.CreateUser(request);
@@ -54,16 +56,10 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     [Route("AuthorizedOnly")]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult AuthorizedOnly()
     {
-        if (!Request.Headers.ContainsKey("Authorization") || !_identityService.Authenticate(Request.Headers["Authorization"]))
-        {
-            return BadRequest("Not Logged In.");
-        }
-
         return Ok("Logged and authenticated");
-
-
     }
 
 }

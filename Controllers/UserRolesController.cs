@@ -1,5 +1,6 @@
 
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -13,6 +14,7 @@ public class UserRolesController : ControllerBase
         _userRolesService = userRolesService;
     }
     [HttpPost]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult Post(CreateUserRoleRequest request)
     {
 

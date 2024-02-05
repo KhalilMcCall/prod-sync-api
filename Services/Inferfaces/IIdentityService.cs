@@ -7,5 +7,4 @@ public interface IIdentityService
     // User GetUser(CreateUserRequest request);
     // User UpdateUser(CreateUserRequest request);
     ErrorOr<string> Login(LoginRequest request);
-    bool Authenticate(string token);
 }

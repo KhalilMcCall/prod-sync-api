@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,6 +14,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult Post(CreateProductRequest request)
     {
         //Create new Product
@@ -85,6 +87,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult Put(Guid id, UpdateProductRequest request)
     {
         //Create new Product
@@ -124,6 +127,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "isAdmin")]
     public IActionResult Delete(Guid id)
     {
         var pr = _productService.DeleteProduct(id);

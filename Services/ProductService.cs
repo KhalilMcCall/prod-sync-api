@@ -49,24 +49,13 @@ public class ProductService : IProductService
     public List<Product> GetProducts()
     {
 
-        var products = _context.Products.ToList();
-        Console.WriteLine("Retrieved the first list!");
-
-        var products2 = _context.Products.Where(x => x.SKU > 10);
-        // if (_memoryCache.TryGetValue(productCacheKey, out List<Product> products))
-        // {
-        //     Console.WriteLine("Products found in Cache!");
-
-        // }
-        // else
-        // {
-        //     Console.WriteLine("Requesting from Dbcontext");
-
-        //     products = _context.Products.ToList();
-        //     _memoryCache.Set(productCacheKey, products, new MemoryCacheEntryOptions()
-        //                                                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(20))
-        //                                                 .SetPriority(CacheItemPriority.Normal));
-        // }
+        if (!_memoryCache.TryGetValue(productCacheKey, out List<Product> products))
+        {
+            products = _context.Products.ToList();
+            _memoryCache.Set(productCacheKey, products, new MemoryCacheEntryOptions()
+                                                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(20))
+                                                        .SetPriority(CacheItemPriority.Normal));
+        }
 
         return products;
     }

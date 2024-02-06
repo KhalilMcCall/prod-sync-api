@@ -8,8 +8,7 @@ public class ProdSyncContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<UserRole> UserRoles { get; set; } = null!;
 
-    public ProdSyncContext(DbContextOptions<ProdSyncContext> options)
-            : base(options)
+    public ProdSyncContext(DbContextOptions<ProdSyncContext> options) : base(options)
     {
 
     }

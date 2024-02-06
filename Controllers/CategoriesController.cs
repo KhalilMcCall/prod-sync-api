@@ -9,7 +9,6 @@ public class CategoriesController : ControllerBase
     private readonly ICategoryService _categoryService;
     public CategoriesController(ICategoryService categoryService)
     {
-        Console.WriteLine("Categories Controller Created!");
         _categoryService = categoryService;
     }
 

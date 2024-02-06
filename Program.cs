@@ -16,14 +16,11 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        //var config = builder.Configuration;
-        // Environment.SetEnvironmentVariable("JWTIssuer", config["JwtSettings:Issuer"]);
-        // Environment.SetEnvironmentVariable("JWTAudience", config["JwtSettings:JWTAudience"]);
-        // Environment.SetEnvironmentVariable("JWTKey", config["JwtSettings:JWTKey"]);
-        // Environment.SetEnvironmentVariable("PKey", config["PassKeySettings:Key"]);
-        // Add services to the container.
+        var config = builder.Configuration;
 
+        // Add services to the container.
         builder.Services.AddControllers();
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -38,20 +35,24 @@ public class Program
                 }
             );
         });
+
+        //Authentication Scheme is configured with Jwt Bearer
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                        .AddJwtBearer(options =>
-                        {
-                            options.TokenValidationParameters = new TokenValidationParameters
-                            {
-                                ValidateIssuer = true,
-                                ValidateAudience = true,
-                                ValidateLifetime = true,
-                                ValidateIssuerSigningKey = true,
-                                ValidIssuer = "http://localhost:5263",
-                                ValidAudience = "http://localhost:5263",
-                                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("kobekobekobekobekobekobekobekobe"))
-                            };
-                        });
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = config["JwtSettings:Issuer"]!,
+                ValidAudience = config["JwtSettings:Audience"]!,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!))
+            };
+        });
+
+        //Authorization Policies configured
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy("isAdmin", policy =>
@@ -59,13 +60,18 @@ public class Program
                 policy.RequireClaim("isAdmin", "true");
             });
         });
+
         builder.Services.AddMemoryCache();
         builder.Services.AddScoped<IUserRolesService, UserRolesService>();
-        builder.Services.AddScoped<IIdentityService, IdentityService>();
+        builder.Services.AddScoped<IIdentityService, IdentityService>(provider =>
+        {
+            var context = provider.GetRequiredService<ProdSyncContext>();
+            return new IdentityService(context, config["JwtSettings:Issuer"]!, config["JwtSettings:Audience"]!, config["JwtSettings:Key"]!, config["PassKeySettings:Key"]!);
+        });
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddDbContext<ProdSyncContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetSection("ProdSync:ConnectionString").Value),
+        options.UseSqlServer(config["ProdSync:ConnectionString"]),
         ServiceLifetime.Scoped);
 
         var app = builder.Build();

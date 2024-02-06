@@ -1,43 +1,26 @@
 
-
-using System.CodeDom.Compiler;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.Json;
 using ErrorOr;
-using Microsoft.AspNetCore.Mvc.DataAnnotations;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 
-
-public class AuthPayload
-{
-    public Guid id { get; set; }
-    public string name { get; set; } = null!;
-    public int iat { get; set; }
-    public int exp { get; set; }
-    public string isAdmin { get; set; }
-    public string iss { get; set; } = null!;
-    public string aud { get; set; } = null!;
-
-
-}
 public class IdentityService : IIdentityService
 {
     private readonly ProdSyncContext _context;
 
-    private readonly string Issuer = "http://localhost:5263";
-    private readonly string Audience = "http://localhost:5263";
-    private readonly string secretKeyP = "kobeBean";
-    private readonly string secretKeyJWT = "kobekobekobekobekobekobekobekobe";
-    public IdentityService(ProdSyncContext context)
+    private readonly string _issuer;
+    private readonly string _audience;
+    private readonly string _passKey;
+    private readonly string _jwtKey;
+    public IdentityService(ProdSyncContext context, string issuer, string audience, string jwtKey, string passKey)
     {
         _context = context;
+        _issuer = issuer;
+        _audience = audience;
+        _jwtKey = jwtKey;
+        _passKey = passKey;
     }
     public ErrorOr<User> CreateUser(CreateUserRequest request)
     {
@@ -113,10 +96,10 @@ public class IdentityService : IIdentityService
             }),
 
             Expires = DateTime.UtcNow.AddHours(2),
-            Issuer = Issuer,
-            Audience = Audience,
+            Issuer = _issuer,
+            Audience = _audience,
             SigningCredentials = new SigningCredentials
-            (new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKeyJWT)),
+            (new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey)),
             SecurityAlgorithms.HmacSha256Signature)
         };
 
@@ -132,13 +115,13 @@ public class IdentityService : IIdentityService
 
     private byte[] GenerateSalt()
     {
-        return RandomNumberGenerator.GetBytes(secretKeyP.Length * 2);
+        return RandomNumberGenerator.GetBytes(_passKey.Length * 2);
     }
     private byte[] GenerateHash(string password, byte[] salt)
     {
         var saltedString = password + Convert.ToHexString(salt);
         var saltedStringbytes = Encoding.UTF8.GetBytes(saltedString);
-        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKeyP));
+        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_passKey));
         return hmac.ComputeHash(saltedStringbytes);
     }
 
